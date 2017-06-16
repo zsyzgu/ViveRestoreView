@@ -37,23 +37,6 @@ for parent, dirnames, filenames in os.walk(rootdir):
 		data.transform = transform
 		data_set.append(data)
 
-'''
-plt.figure(file_cnt, figsize = (8, 6))
-file_cnt = file_cnt + 1
-
-plt.plot(time_stamp, data[0])
-plt.plot(time_stamp, data[1])
-plt.plot(time_stamp, data[2])
-plt.plot(time_stamp, data[6])
-plt.plot(time_stamp, data[7])
-plt.plot(time_stamp, data[8])
-plt.plot(time_stamp, data[12])
-plt.plot(time_stamp, data[13])
-plt.plot(time_stamp, data[14])
-
-plt.show()
-'''
-
 def id_device(i):
 	return i
 
@@ -67,9 +50,10 @@ def id_opt(i):
 	return len(devices) + len(trans) + len(data_set) + i
 
 def draw():
-	plt.figure(1, figsize = (6, 6))
+	plt.figure(1, figsize = (10, 6))
 	plt.clf()
 
+	max_time = 0
 	action_cnt = 0
 	for i in range(len(data_set)):
 		if (switchs[id_data(i)] == 1):
@@ -81,6 +65,7 @@ def draw():
 					device_cnt = device_cnt + 1
 					x = data.timestamp
 					y = data.transform[j]
+					max_time = max(max_time, x[-1])
 
 					if switchs[id_opt(0)]:
 						y = y - sum(y) / len(y)
@@ -104,6 +89,9 @@ def draw():
 						color_style = 'g'
 					
 					plt.plot(x, y, line_style + color_style)
+	
+	for i in range(0, int(max_time), 5):
+		plt.axvline(i, -1, 1, '--', linewidth = 0.1)
 
 	plt.show()
 
