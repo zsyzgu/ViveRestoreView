@@ -4,38 +4,11 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 import tkMessageBox
-import os
-import os.path
-import codecs
+from data_input import get_data_set
 
-class Data:
-	filename = ''
-	timestamp = []
-	transform = []
+data_set = get_data_set()
 
-rootdir = 'data'
-files = 0
-data_set = []
-
-for parent, dirnames, filenames in os.walk(rootdir):
-	for filename in filenames:
-		print filename
-		inp = codecs.open(os.path.join(parent, filename), 'r')
-		lines = inp.readlines()
-		inp.close()
-		n = len(lines)
-		timestamp = np.zeros(n)
-		transform = np.zeros((n, 18))
-		for i in range(n):
-			tags = lines[i].split(' ')
-			timestamp[i] = float(tags[0])
-			transform[i] = map(float, tags[1 :])
-		transform = np.transpose(transform)
-		data = Data()
-		data.filename = filename
-		data.timestamp = timestamp
-		data.transform = transform
-		data_set.append(data)
+plt.figure(1, figsize = (10, 6))
 
 def id_device(i):
 	return i
@@ -50,7 +23,6 @@ def id_opt(i):
 	return len(devices) + len(trans) + len(data_set) + i
 
 def draw():
-	plt.figure(1, figsize = (10, 6))
 	plt.clf()
 
 	max_time = 0
@@ -94,6 +66,7 @@ def draw():
 		plt.axvline(i, -1, 1, '--', linewidth = 0.1)
 
 	plt.show()
+	plt.close()
 
 def click_button(i):
 	switchs[i] = 1 - switchs[i]
@@ -101,8 +74,6 @@ def click_button(i):
 		buttons[i].config(bg = 'white')
 	else:
 		buttons[i].config(bg = 'gray')
-	
-	draw()
 
 root = Tk()
 
@@ -136,5 +107,7 @@ for i in range(len(opts)):
 	button = Button(root, text = opts[i], bg = 'gray', width = 30, command = lambda i = i : click_button(id_opt(i)))
 	button.pack()
 	buttons.append(button)
+
+Button(root, text = 'draw', bg = 'red', width = 30, command = draw).pack()
 
 root.mainloop()
