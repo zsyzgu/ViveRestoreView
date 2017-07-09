@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 import tkMessageBox
-from data_input import get_data_set
+from data_process import get_data_set
 
 data_set = get_data_set()
 
@@ -32,7 +32,7 @@ def draw():
 			action_cnt = action_cnt + 1
 			data = data_set[i]
 			device_cnt = 0
-			for j in range(18):
+			for j in range(15):
 				if (switchs[id_trans(j % len(trans))] == 1 and switchs[id_device(j / len(trans))] == 1):
 					device_cnt = device_cnt + 1
 					x = data.timestamp

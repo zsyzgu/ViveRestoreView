@@ -3,9 +3,10 @@ import os
 import os.path
 import codecs
 import pandas as pd
+import matplotlib.pyplot as plt
 
 fps = 100
-action_interval = 5 * fps
+action_interval = 3 * fps
 action_period = 1 * fps
 
 class Data:
@@ -52,22 +53,30 @@ def get_data_set():
 			transform = np.transpose(transform)
 			
 			trans_num = len(transform)
+			n = len(timestamp)
+			z = np.zeros(n)
 			for trans_id in range(trans_num):
-				y = transform[trans_id]
-				transform[trans_id] = y - pd.ewma(y, halflife = action_period)
-			
-			z = sum(abs(transform))
+				y = transform[trans_id] - pd.ewma(transform[trans_id], halflife = action_period)
+				z = z + [y[i] * y[i] for i in range(n)]
 			
 			actions = []
 			action_num = int((len(timestamp) - action_period / 2) / action_interval)
 			for act_id in range(action_num):
 				action = np.zeros((trans_num, action_period))
-				t = action_interval * (act_id + 1)
-				t = np.where(z == np.max(z[int(t - action_interval / 2) : int(t + action_interval / 2)]))[0]
-				for trans_id in range(trans_num):
-					action[trans_id] = transform[trans_id][int(t - action_period / 2) : int(t + action_period / 2)]
-					action[trans_id] = action[trans_id] - sum(action[trans_id]) / action_period
-				actions.append(action)
+				mid = action_interval * (act_id + 1)
+				t = -1
+				for i in range(0, action_period):
+					if (z[mid + i] == max(z[mid + i - 5 : mid + i + 5])):
+						t = mid + i
+						break
+					if (z[mid - i] == max(z[mid - i - 5 : mid - i + 5])):
+						t = mid - i
+						break
+				if t != -1:
+					for trans_id in range(trans_num):
+						action[trans_id] = transform[trans_id][int(t - action_period / 2) : int(t + action_period / 2)]
+						action[trans_id] = action[trans_id] - sum(action[trans_id]) / action_period
+					actions.append(action)
 			
 			data = Data()
 			data.filename = filename
